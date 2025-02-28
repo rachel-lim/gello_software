@@ -1,45 +1,16 @@
-# GELLO
-This is the central repo that holds the all the software for GELLO. See the website for the paper and other resources for GELLO https://wuphilipp.github.io/gello_site/
-See the GELLO hardware repo for the STL files and hardware instructions for building your own GELLO https://github.com/wuphilipp/gello_mechanical
-```
-git clone https://github.com/wuphilipp/gello_software.git
-cd gello_software
-```
 
-<p align="center">
-  <img src="imgs/title.png" />
-</p>
-
-
-## Use your own enviroment
+## Setup
+In a conda environment:
 ```
 git submodule init
 git submodule update
-pip install -r requirements.txt
-pip install -e .
-pip install -e third_party/DynamixelSDK/python
+pip3 install -r requirements.txt
+pip3 install -e .
+pip3 install -e third_party/DynamixelSDK/python
 ```
-
-## Use with Docker
-First install ```docker``` following this [link](https://docs.docker.com/engine/install/ubuntu/) on your host machine.
-Then you can clone the repo and build the corresponding docker environment
-
-Build the docker image and tag it as gello:latest. If you are going to name it differently, you need to change the launch.py image name
-```
-docker build . -t gello:latest
-```
-
-We have provided an entry point into the docker container
-```
-python scripts/launch.py
-```
-
-# GELLO configuration setup (PLEASE READ)
-Now that you have downloaded the code, there is some additional preparation work to properly configure the Dynamixels and GELLO.
-These instructions will guide you on how to update the motor ids of the Dynamixels and then how to extract the joint offsets to configure your GELLO.
 
 ## Update motor IDs
-Install the [dynamixel_wizard](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_wizard2/).
+Install [dynamixel_wizard](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_wizard2/)
 By default, each motor has the ID 1. In order for multiple dynamixels to be controlled by the same U2D2 controller board, each dynamixel must have a unique ID.
 This process must be done one motor at a time. Connect each motor, starting from the base motor, and assign them in increasing order until you reach the gripper.
 
