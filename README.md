@@ -64,10 +64,7 @@ We have created a simple script to automatically detect the joint offset:
 
 * run 
 ```
-python scripts/gello_get_offset.py \
-    --start-joints 0 -1.57 1.57 -1.57 -1.57 0 \ # in radians
-    --joint-signs 1 1 -1 1 1 1 \
-    --port /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7WBG6
+python3 scripts/gello_get_offset.py --start-joints 0 -1.57 1.57 -1.57 -1.57 0 --joint-signs 1 1 -1 1 1 1 \ --port /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7WBG6
 # replace values with your own
 ```
 * Use the known starting joints for `start-joints`.
@@ -90,13 +87,13 @@ For multiprocessing, we leverage [ZMQ](https://zeromq.org/)
 First test your GELLO with a simulated robot to make sure that the joint angles match as expected.
 In one terminal run
 ```
-python experiments/launch_nodes.py --robot <sim_ur, sim_panda, or sim_xarm>
+python3 experiments/launch_nodes.py --robot sim_ur
 ```
 This launched the robot node. A simulated robot using the mujoco viewer should appear.
 
 Then, launch your GELLO (the controller node).
 ```
-python experiments/run_env.py --agent=gello
+python3 experiments/run_env.py --agent=gello
 ```
 You should be able to use GELLO to control the simulated robot!
 
