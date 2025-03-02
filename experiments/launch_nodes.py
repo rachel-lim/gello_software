@@ -60,7 +60,7 @@ def launch_robot_server(args: Args):
 
             robot = XArmRobot(ip=args.robot_ip)
         elif args.robot == "ur":
-            from gello.robots.ur import URRobot
+            from gello.robots.ur5 import URRobot
 
             robot = URRobot(robot_ip=args.robot_ip)
         elif args.robot == "panda":

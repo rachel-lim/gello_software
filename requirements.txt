@@ -2,7 +2,7 @@
 dm_control
 Pillow
 pygame
-pyspacemouse
+# pyspacemouse
 PyQt6
 pyquaternion
 pyrealsense2

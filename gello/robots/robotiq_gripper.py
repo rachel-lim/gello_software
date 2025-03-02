@@ -123,6 +123,7 @@ class RobotiqGripper:
 
         # expect data of the form 'VAR x', where VAR is an echo of the variable name, and X the value
         # note some special variables (like FLT) may send 2 bytes, instead of an integer. We assume integer here
+        print(data)
         var_name, value_str = data.decode(self.ENCODING).split()
         if var_name != variable:
             raise ValueError(

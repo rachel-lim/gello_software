@@ -151,6 +151,8 @@ def main(args):
     obs = env.get_obs()
     joints = obs["joint_positions"]
 
+    print(start_pos)
+    print(joints)
     abs_deltas = np.abs(start_pos - joints)
     id_max_joint_delta = np.argmax(abs_deltas)
 
