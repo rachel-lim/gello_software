@@ -9,11 +9,12 @@ import numpy as np
 import tyro
 
 from gello.agents.agent import BimanualAgent, DummyAgent
-from gello.agents.gello_agent import GelloAgent
+from gello.agents.gello_agent import DynamixelRobotConfig, GelloAgent
 from gello.data_utils.format_obs import save_frame
 from gello.env import RobotEnv
 from gello.robots.robot import PrintRobot
 from gello.zmq_core.robot_node import ZMQClientRobot
+from scripts.gello_get_offset import get_config
 
 
 def print_color(*args, color=None, attrs=(), **kwargs):
@@ -121,7 +122,15 @@ def main(args):
                 )  # Change this to your own reset joints
             else:
                 reset_joints = args.start_joints
-            agent = GelloAgent(port=gello_port, start_joints=args.start_joints)
+                
+            # get joint offsets for agent
+            best_offsets, gripper_open, gripper_close = get_config()
+            config = DynamixelRobotConfig(joint_ids=(1, 2, 3, 4, 5, 6),
+                                          joint_offsets=best_offsets,
+                                          joint_signs=(1, 1, -1, 1, 1, 1),
+                                          gripper_config=(7, gripper_open, gripper_close))
+            
+            agent = GelloAgent(port=gello_port, dynamixel_config=config, start_joints=args.start_joints)
             curr_joints = env.get_obs()["joint_positions"]
             if reset_joints.shape == curr_joints.shape:
                 max_delta = (np.abs(curr_joints - reset_joints)).max()

@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Tuple
+from typing import List, Tuple
 
 import numpy as np
 import tyro
+import glob
 
 from gello.dynamixel.driver import DynamixelDriver
 
@@ -12,10 +13,10 @@ MENAGERIE_ROOT: Path = Path(__file__).parent / "third_party" / "mujoco_menagerie
 
 @dataclass
 class Args:
-    port: str = "/dev/ttyUSB0"
+    port: str = ""
     """The port that GELLO is connected to."""
 
-    start_joints: Tuple[float, ...] = (0, 0, 0, 0, 0, 0)
+    start_joints: Tuple[float, ...] = (0, -1.57, 1.57, -1.57, -1.57, 0)
     """The joint angles that the GELLO is placed in at (in radians)."""
 
     joint_signs: Tuple[float, ...] = (1, 1, -1, 1, 1, 1)
@@ -41,7 +42,14 @@ class Args:
         return self.num_robot_joints + extra_joints
 
 
-def get_config(args: Args) -> None:
+def get_config(args: Args = Args()) -> Tuple[List[float], int, int]:
+        
+    if not args.port:
+        ports = glob.glob("/dev/serial/by-id/*")
+        if len(ports) != 1:
+            raise ValueError("Multiple devices found, please specify the port.")
+        args.port = ports[0]
+        
     joint_ids = list(range(1, args.num_joints + 1))
     driver = DynamixelDriver(joint_ids, port=args.port, baudrate=57600)
 
@@ -58,40 +66,51 @@ def get_config(args: Args) -> None:
     for _ in range(10):
         driver.get_joints()  # warmup
 
-    for _ in range(1):
-        best_offsets = []
-        curr_joints = driver.get_joints()
-        for i in range(args.num_robot_joints):
-            best_offset = 0
-            best_error = 1e6
-            for offset in np.linspace(
-                -8 * np.pi, 8 * np.pi, 8 * 4 + 1
-            ):  # intervals of pi/2
-                error = get_error(offset, i, curr_joints)
-                if error < best_error:
-                    best_error = error
-                    best_offset = offset
-            best_offsets.append(best_offset)
-        print()
-        print("best offsets               : ", [f"{x:.3f}" for x in best_offsets])
-        print(
-            "best offsets function of pi: ["
-            + ", ".join([f"{int(np.round(x/(np.pi/2)))}*np.pi/2" for x in best_offsets])
-            + " ]",
-        )
-        if args.gripper:
-            print(
-                "gripper open (degrees)       ",
-                np.rad2deg(driver.get_joints()[-1]) - 0.2,
-            )
-            print(
-                "gripper close (degrees)      ",
-                np.rad2deg(driver.get_joints()[-1]) - 42,
-            )
+    # get joint offsets to closest pi/2
+    best_offsets = []
+    curr_joints = driver.get_joints()
+    for i in range(args.num_robot_joints):
+        best_offset = 0
+        best_error = 1e6
+        for offset in np.linspace(
+            -8 * np.pi, 8 * np.pi, 8 * 4 + 1
+        ):  # intervals of pi/2
+            error = get_error(offset, i, curr_joints)
+            if error < best_error:
+                best_error = error
+                best_offset = offset
+        best_offsets.append(best_offset)
+        
+    # get gripper open and close angles
+    gripper_open = int(np.floor(np.rad2deg(driver.get_joints()[-1]) - 0.2))
+    gripper_close = int(np.ceil(np.rad2deg(driver.get_joints()[-1]) - 42))
+    
+    return best_offsets, gripper_open, gripper_close
+        
+    
 
+def print_config(args):
+    best_offsets, gripper_open, gripper_close = get_config(args)
+    
+    print("best offsets               : ", [f"{x:.3f}" for x in best_offsets])
+    print(
+        "best offsets function of pi: ["
+        + ", ".join([f"{int(np.round(x/(np.pi/2)))}*np.pi/2" for x in best_offsets])
+        + " ]",
+    )
+    if args.gripper:
+        print(
+            "gripper open (degrees)       ",
+            gripper_open,
+        )
+        print(
+            "gripper close (degrees)      ",
+            gripper_close,
+        )
+    
 
 def main(args: Args) -> None:
-    get_config(args)
+    print_config(args)
 
 
 if __name__ == "__main__":
