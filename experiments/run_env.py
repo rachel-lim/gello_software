@@ -39,7 +39,7 @@ class Args:
     gello_port: Optional[str] = None
     mock: bool = False
     use_save_interface: bool = False
-    data_dir: str = "~/bc_data"
+    data_dir: str = "~/rachel/gello_software/data"
     bimanual: bool = False
     verbose: bool = False
 
@@ -211,11 +211,6 @@ def main(args):
             )
         exit()
 
-    if args.use_save_interface:
-        from gello.data_utils.keyboard_interface import KBReset
-
-        kb_interface = KBReset()
-
     print_color("\nStart 🚀🚀🚀", color="green", attrs=("bold",))
 
     save_path = None
@@ -233,8 +228,8 @@ def main(args):
         action = agent.act(obs)
         dt = datetime.datetime.now()
         if args.use_save_interface:
-            state = kb_interface.update()
-            if state == "start":
+            # if state == "start":
+            if save_path is None:
                 dt_time = datetime.datetime.now()
                 save_path = (
                     Path(args.data_dir).expanduser()
@@ -243,13 +238,9 @@ def main(args):
                 )
                 save_path.mkdir(parents=True, exist_ok=True)
                 print(f"Saving to {save_path}")
-            elif state == "save":
+            else:
                 assert save_path is not None, "something went wrong"
                 save_frame(save_path, dt, obs, action)
-            elif state == "normal":
-                save_path = None
-            else:
-                raise ValueError(f"Invalid state {state}")
         obs = env.step(action)
 
 
