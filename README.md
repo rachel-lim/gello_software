@@ -1,42 +1,31 @@
 # GELLO
-This is the central repo that holds the all the software for GELLO. See the website for the paper and other resources for GELLO https://wuphilipp.github.io/gello_site/
-See the GELLO hardware repo for the STL files and hardware instructions for building your own GELLO https://github.com/wuphilipp/gello_mechanical
+Modified from https://github.com/wuphilipp/gello_software
+
+## Set up conda environment
+
+Create environment:
 ```
-git clone https://github.com/wuphilipp/gello_software.git
-cd gello_software
+conda create -n gello python=3.9
+```
+Activate:
+```
+conda activate gello
 ```
 
-<p align="center">
-  <img src="imgs/title.png" />
-</p>
+Clone repo:
+```
+git clone https://github.com/rachel-lim/gello_software.git
+```
 
-
-## Use your own enviroment
+Install required files:
 ```
 git submodule init
 git submodule update
-pip install -r requirements.txt
-pip install -e .
-pip install -e third_party/DynamixelSDK/python
+pip3 install -r requirements.txt
+pip3 install -e .
+pip3 install -e third_party/DynamixelSDK/python
 ```
 
-## Use with Docker
-First install ```docker``` following this [link](https://docs.docker.com/engine/install/ubuntu/) on your host machine.
-Then you can clone the repo and build the corresponding docker environment
-
-Build the docker image and tag it as gello:latest. If you are going to name it differently, you need to change the launch.py image name
-```
-docker build . -t gello:latest
-```
-
-We have provided an entry point into the docker container
-```
-python scripts/launch.py
-```
-
-# GELLO configuration setup (PLEASE READ)
-Now that you have downloaded the code, there is some additional preparation work to properly configure the Dynamixels and GELLO.
-These instructions will guide you on how to update the motor ids of the Dynamixels and then how to extract the joint offsets to configure your GELLO.
 
 ## Update motor IDs
 Install the [dynamixel_wizard](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_wizard2/).
@@ -137,52 +126,6 @@ python processes.
 ```
 ./kill_nodes.sh
 ```
-
-### Using a new robot!
-If you want to use a new robot you need a GELLO that is compatible. If the kiniamtics are close enough, you may directly use an existing GELLO. Otherwise you will have to design your own.
-To add a new robot, simply implement the `Robot` protocol found in `gello/robots/robot`. See `gello/robots/panda.py`, `gello/robots/ur.py`, `gello/robots/xarm_robot.py` for examples.
-
-### Contributing
-Please make a PR if you would like to contribute! The goal of this project is to enable more accessible and higher quality teleoperation devices and we would love your input!
-
-You can optionally install some dev packages.
-```
-pip install -r requirements_dev.txt
-```
-
-The code is organized as follows:
- * `scripts`: contains some helpful python `scripts`
- * `experiments`: contains entrypoints into the gello code
- * `gello`: contains all of the `gello` python package code
-    * `agents`: teleoperation agents
-    * `cameras`: code to interface with camera hardware
-    * `data_utils`: data processing utils. used for imitation learning
-    * `dm_control_tasks`: dm_control utils to build a simple dm_control enviroment. used for demos
-    * `dynamixel`: code to interface with the dynamixel hardware
-    * `robots`: robot specific interfaces
-    * `zmq_core`: zmq utilities for enabling a multi node system
-
-
-This code base uses `isort` and `black` for code formatting.
-pre-commits hooks are great. This will automatically do some checking/formatting. To use the pre-commit hooks, run the following:
-```
-pip install pre-commit
-pre-commit install
-```
-
-# Citation
-
-```
-@misc{wu2023gello,
-    title={GELLO: A General, Low-Cost, and Intuitive Teleoperation Framework for Robot Manipulators},
-    author={Philipp Wu and Yide Shentu and Zhongke Yi and Xingyu Lin and Pieter Abbeel},
-    year={2023},
-}
-```
-
-# License & Acknowledgements
-This source code is licensed under the MIT license found in the LICENSE file. in the root directory of this source tree.
-
 This project builds on top of or utilizes the following third party dependencies.
  * [google-deepmind/mujoco_menagerie](https://github.com/google-deepmind/mujoco_menagerie): Prebuilt robot models for mujoco
  * [brentyi/tyro](https://github.com/brentyi/tyro): Argument parsing and configuration
